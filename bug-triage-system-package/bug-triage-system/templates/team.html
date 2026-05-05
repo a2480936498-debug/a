@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}团队成员 | Bug 分类和分配系统{% endblock %}
+
+{% block content %}
+<section class="content-grid team-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h2>新增成员</h2>
+            <span class="muted">专长请用英文逗号分隔</span>
+        </div>
+        <form method="post" class="form-grid">
+            <label>
+                <span>姓名</span>
+                <input type="text" name="name" required>
+            </label>
+            <label>
+                <span>邮箱</span>
+                <input type="email" name="email" required>
+            </label>
+            <label class="full-span">
+                <span>专长分类</span>
+                <input type="text" name="expertise" required placeholder="例如：后端服务,数据库,性能">
+            </label>
+            <label>
+                <span>容量上限</span>
+                <input type="number" name="capacity" min="1" max="20" value="5" required>
+            </label>
+            <label class="checkbox-row">
+                <input type="checkbox" name="active" checked>
+                <span>启用该成员参与自动分配</span>
+            </label>
+            <div class="form-actions full-span">
+                <button type="submit" class="button button-primary">添加成员</button>
+            </div>
+        </form>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h2>成员列表</h2>
+            <span class="muted">可直接修改负载容量和启用状态</span>
+        </div>
+        <div class="member-cards">
+            {% for member in team_members %}
+                <form method="post" action="{{ url_for('edit_team_member_view', member_id=member.id) }}" class="member-card">
+                    <div class="member-card-head">
+                        <div>
+                            <h3>{{ member.name }}</h3>
+                            <p>{{ member.open_bug_count }} 个开放 Bug / 共 {{ member.total_bug_count }} 个</p>
+                        </div>
+                        <span class="status {{ 'status-处理中' if member.active else 'status-已关闭' }}">{{ '启用中' if member.active else '已停用' }}</span>
+                    </div>
+                    <label>
+                        <span>姓名</span>
+                        <input type="text" name="name" value="{{ member.name }}" required>
+                    </label>
+                    <label>
+                        <span>邮箱</span>
+                        <input type="email" name="email" value="{{ member.email }}" required>
+                    </label>
+                    <label>
+                        <span>容量上限</span>
+                        <input type="number" name="capacity" min="1" max="20" value="{{ member.capacity }}" required>
+                    </label>
+                    <label class="full-span">
+                        <span>专长分类</span>
+                        <input type="text" name="expertise" value="{{ member.expertise }}" required>
+                    </label>
+                    <label class="checkbox-row">
+                        <input type="checkbox" name="active" {% if member.active %}checked{% endif %}>
+                        <span>启用该成员</span>
+                    </label>
+                    <button type="submit" class="button button-secondary">保存成员信息</button>
+                </form>
+            {% else %}
+                <p class="muted">暂无成员数据</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}
+

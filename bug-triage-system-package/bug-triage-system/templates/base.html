@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Bug 分类和分配系统{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div>
+                <p class="eyebrow">Bug Triage System</p>
+                <h1>Bug 分类和分配系统</h1>
+            </div>
+            <nav class="nav">
+                <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' else '' }}">仪表盘</a>
+                <a href="{{ url_for('bug_list') }}" class="{{ 'active' if request.endpoint == 'bug_list' else '' }}">Bug 列表</a>
+                <a href="{{ url_for('create_bug_view') }}" class="{{ 'active' if request.endpoint == 'create_bug_view' else '' }}">新建 Bug</a>
+                <a href="{{ url_for('team_view') }}" class="{{ 'active' if request.endpoint == 'team_view' else '' }}">团队成员</a>
+            </nav>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <section class="flash-stack">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </section>
+            {% endif %}
+        {% endwith %}
+
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘 | Bug 分类和分配系统{% endblock %}
+
+{% block content %}
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Team Overview</p>
+        <h2>自动分类、自动分配、统一流转</h2>
+        <p class="hero-text">这个版本适合直接演示，也适合作为你后续接数据库、消息通知或权限系统的基础骨架。</p>
+    </div>
+    <div class="hero-actions">
+        <a class="button button-primary" href="{{ url_for('create_bug_view') }}">提交新 Bug</a>
+        <a class="button button-secondary" href="{{ url_for('bug_list') }}">查看 Bug 列表</a>
+    </div>
+</section>
+
+<section class="stats-grid">
+    <article class="stat-card">
+        <span>总 Bug 数</span>
+        <strong>{{ summary.stats.total }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>待处理</span>
+        <strong>{{ summary.stats.todo }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>处理中</span>
+        <strong>{{ summary.stats.doing }}</strong>
+    </article>
+    <article class="stat-card">
+        <span>已关闭</span>
+        <strong>{{ summary.stats.closed }}</strong>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h3>分类分布</h3>
+            <span class="muted">按当前 Bug 数量统计</span>
+        </div>
+        <div class="pill-cloud">
+            {% for row in summary.by_category %}
+                <span class="pill">{{ row.category }} · {{ row.count }}</span>
+            {% else %}
+                <span class="muted">暂无数据</span>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h3>严重级别</h3>
+            <span class="muted">用于快速识别优先级</span>
+        </div>
+        <div class="pill-cloud">
+            {% for row in summary.by_severity %}
+                <span class="pill pill-warm">{{ row.severity }} · {{ row.count }}</span>
+            {% else %}
+                <span class="muted">暂无数据</span>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+
+<section class="content-grid">
+    <article class="panel">
+        <div class="panel-head">
+            <h3>最近更新的 Bug</h3>
+            <a href="{{ url_for('bug_list') }}">查看全部</a>
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>标题</th>
+                        <th>分类</th>
+                        <th>状态</th>
+                        <th>负责人</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bug in recent_bugs %}
+                        <tr>
+                            <td>#{{ bug.id }}</td>
+                            <td><a href="{{ url_for('edit_bug_view', bug_id=bug.id) }}">{{ bug.title }}</a></td>
+                            <td><span class="tag">{{ bug.category }}</span></td>
+                            <td><span class="status status-{{ bug.status }}">{{ bug.status }}</span></td>
+                            <td>{{ bug.assignee_name or "未分配" }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="empty-cell">暂无 Bug 数据</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <article class="panel">
+        <div class="panel-head">
+            <h3>团队负载</h3>
+            <span class="muted">开放 Bug / 容量上限</span>
+        </div>
+        <div class="member-list">
+            {% for member in summary.team_load %}
+                <div class="member-row">
+                    <div>
+                        <strong>{{ member.name }}</strong>
+                        <p>{{ member.open_bug_count }} / {{ member.capacity }}</p>
+                    </div>
+                    <div class="meter">
+                        {% set width = (member.open_bug_count / member.capacity * 100) if member.capacity else 0 %}
+                        <span style="width: {{ [width, 100]|min }}%;"></span>
+                    </div>
+                </div>
+            {% else %}
+                <p class="muted">暂无启用成员</p>
+            {% endfor %}
+        </div>
+    </article>
+</section>
+{% endblock %}
+
